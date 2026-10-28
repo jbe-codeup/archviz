@@ -6,11 +6,7 @@ Archviz is an open-source visual infrastructure builder. You draw an AWS archite
 
 ## Who it's for
 
-<!-- TODO(Joseph): confirm or rewrite this audience section in your own words. -->
-
-- **Developers and small teams who need AWS infrastructure but aren't Terraform experts.** Sketch the architecture, and Archviz writes the security-group rules, IAM policies and companion resources each connection implies.
-- **Platform and DevOps engineers** who want a fast, visual way to scaffold a stack and hand teammates Terraform they can review in a pull request.
-- **People learning AWS**, who can see what Terraform each connection in a diagram turns into, and try it locally against LocalStack without an AWS account.
+Any development team that maintains Terraform and wants one central, unified way to structure its infrastructure code, instead of many different code styles across projects and people.
 
 ## Built with
 
