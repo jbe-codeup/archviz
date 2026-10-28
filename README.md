@@ -1,6 +1,21 @@
 # Archviz
 
-Open-source visual infrastructure builder that generates idiomatic Terraform (HCL) from a node-and-edge cloud architecture diagram.
+Archviz is an open-source visual infrastructure builder. You draw an AWS architecture as a node-and-edge diagram, and it generates idiomatic, reviewable Terraform (HCL) from it. Constraints such as "a Subnet must sit inside a VPC" or "a Lambda needs an execution role" are checked live on the canvas, so the Terraform you export is complete, not a half-finished sketch.
+
+![Lambda with no execution role: error badge on the node and a structural diagnostic naming the missing connection](docs/images/lambda-missing-execution-role.png)
+
+## Who it's for
+
+Any development team that maintains Terraform and wants one central, unified way to structure its infrastructure code, instead of many different code styles across projects and people.
+
+## Built with
+
+- **TypeScript** throughout, in a **pnpm** workspace monorepo (Node.js 20 or later)
+- **React 19 + Vite** for the Studio editor, with **React Flow** (`@xyflow/react`) for the canvas
+- **XState v5** and `@xstate/store` for the editor statechart and the document model
+- **Vitest** for tests
+- **Terraform** (optional) for the Plan button and the fixture check; **Docker + LocalStack** (optional) for local apply
+- **Model Context Protocol (MCP)** server (`@archviz/mcp`) so AI coding tools can read and edit diagrams
 
 ## Packages
 
@@ -8,20 +23,61 @@ Open-source visual infrastructure builder that generates idiomatic Terraform (HC
 |---------|-------------|
 | `@archviz/schema` | Meta-schema types, `defineResource()`, ResourceRegistry |
 | `@archviz/core` | Document model, constraint engine, validator |
-| `@archviz/provider-aws` | AWS resource definitions (22 common resources) |
+| `@archviz/provider-aws` | AWS resource definitions (26 palette resources) |
 | `@archviz/codegen` | Terraform HCL generator + materializers |
-| `@archviz/runner` | Local companion CLI that runs `terraform plan` for the studio |
+| `@archviz/runner` | Local companion CLI that runs `terraform plan` (and LocalStack apply) for the studio |
+| `@archviz/mcp` | MCP server: list, validate and edit diagrams, and generate Terraform from an AI client |
 | `@archviz/studio` | Visual editor (React Flow + XState) |
 
 ## Getting started
 
+### Prerequisites
+
+- Node.js 20 or later
+- pnpm 9 (`corepack enable` picks up the pinned `pnpm@9.15.0` from `package.json`)
+- Optional: `terraform` on your PATH for **Plan**, and Docker for **LocalStack apply**
+
+### Run the studio
+
 ```bash
+git clone https://github.com/codeupllc/archviz.git
+cd archviz
 pnpm install
 pnpm build
-pnpm --filter @archviz/studio dev
+pnpm dev          # same as: pnpm --filter @archviz/studio dev
 ```
 
-Open http://localhost:5173 — drag resources from the palette onto the canvas (nest Subnets inside VPCs, EC2 inside Subnets), connect handles, edit properties, and export `main.tf`.
+Open http://localhost:5173. Drag resources from the palette onto the canvas (nest Subnets inside VPCs, EC2 inside Subnets), connect handles, edit properties, and export `main.tf`. Diagrams are saved in your browser's `localStorage`; no account or backend is needed.
+
+### Optional: Plan from the UI
+
+In a second terminal:
+
+```bash
+cp .env.example .env   # optional; only needed for LocalStack overrides
+pnpm runner            # listens on http://127.0.0.1:4180, workspaces in ./terraform-out (gitignored)
+```
+
+The **Plan** button in the studio lights up once the runner is running. See [Plan from the UI](#plan-from-the-ui) and [`docs/localstack.md`](docs/localstack.md).
+
+### Optional: MCP server
+
+```bash
+pnpm --filter @archviz/mcp start
+```
+
+See [`docs/mcp.md`](docs/mcp.md).
+
+### Tests
+
+```bash
+pnpm test        # Vitest across all packages
+pnpm typecheck
+```
+
+## Roadmap
+
+What's next is in [ROADMAP.md](ROADMAP.md) and the [open issues](https://github.com/codeupllc/archviz/issues).
 
 ## Contributing
 
@@ -143,7 +199,7 @@ The runner loads env from (first match wins per key; shell env always wins):
 
 1. `./.env` (cwd)
 2. Archviz repo-root `.env`
-3. Sibling `../archviz-enterprise/.env` (if present)
+3. Sibling `../archviz-enterprise/.env` (if present; Archviz Enterprise is a separate, private product built on these packages and isn't needed to run anything here)
 
 See [`.env.example`](.env.example). For LocalStack trial / current images:
 
