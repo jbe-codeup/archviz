@@ -65,7 +65,7 @@ Then `pnpm runner` — no need to `export` in the shell.
 
 When `LOCALSTACK_AUTH_TOKEN` is set, Archviz also allows **Ultimate-hint** palette types (ECS, RDS, ALB, …) for Apply. Without a token, those diagrams show a Hobby badge and Apply stays disabled.
 
-**Commercial / LLC:** Hobby/community terms are non-commercial. CodeUp LLC dogfooding needs Base/Ultimate (or OSS sponsorship). End users bring their own LocalStack license; Archviz does not vendor one.
+**Commercial use:** Hobby/community terms are non-commercial. Commercial use needs Base/Ultimate (or OSS sponsorship). End users bring their own LocalStack license; Archviz does not vendor one.
 
 ## Studio
 
