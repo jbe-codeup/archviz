@@ -4,10 +4,9 @@ How coding agents (Cursor, Claude Code, etc.) should contribute to this repo.
 
 ## Default workflow
 
-1. **Pick work** from the public board: [Archviz AWS coverage](https://github.com/orgs/codeupllc/projects/1)  
-   Prefer open **Todo** items labeled `P0`, then `good first issue` / `help wanted`.  
-   Fallback: [issues](https://github.com/codeupllc/archviz/issues) + milestone **AWS coverage roadmap**.
-2. **Claim** the issue (comment that you are taking it; set board status to In Progress when you can).
+1. **Pick work** from the [issue list](https://github.com/jbe-codeup/archviz/issues), milestone **AWS coverage roadmap**.  
+   Prefer open items labeled `P0`, then `good first issue` / `help wanted`.
+2. **Claim** the issue (comment that you are taking it).
 3. **One issue ≈ one PR.** Do not expand into neighboring backlog rows unless the issue says so.
 4. **Implement** using the skill and coverage doc (below).
 5. **Open a PR** with `Fixes #<n>` and the PR template checklist.

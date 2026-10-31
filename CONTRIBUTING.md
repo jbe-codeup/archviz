@@ -4,7 +4,7 @@ Thanks for helping build an open-source visual Terraform builder. This repo is s
 
 ## Pick work
 
-1. Open the **[Archviz AWS coverage](https://github.com/orgs/codeupllc/projects/1)** board or the [issue list](https://github.com/codeupllc/archviz/issues).
+1. Open the [issue list](https://github.com/jbe-codeup/archviz/issues).
 2. Prefer **P0** / `good first issue` / `help wanted` items that are still open.
 3. Comment on the issue when you start (`I'll take this`) so others don't duplicate work.
 4. One issue ≈ one PR. Keep deepen and new-resource work separate unless the issue says otherwise.

@@ -40,7 +40,7 @@ Any development team that maintains Terraform and wants one central, unified way
 ### Run the studio
 
 ```bash
-git clone https://github.com/codeupllc/archviz.git
+git clone https://github.com/jbe-codeup/archviz.git
 cd archviz
 pnpm install
 pnpm build
@@ -77,11 +77,11 @@ pnpm typecheck
 
 ## Roadmap
 
-What's next is in [ROADMAP.md](ROADMAP.md) and the [open issues](https://github.com/codeupllc/archviz/issues).
+What's next is in [ROADMAP.md](ROADMAP.md) and the [open issues](https://github.com/jbe-codeup/archviz/issues).
 
 ## Contributing
 
-Pick an open item on the [Archviz AWS coverage](https://github.com/orgs/codeupllc/projects/1) board (prefer `P0` / `good first issue`), follow [CONTRIBUTING.md](CONTRIBUTING.md), and for AWS nodes use [`.cursor/skills/add-aws-resource/SKILL.md`](.cursor/skills/add-aws-resource/SKILL.md) + [`docs/aws-coverage.md`](docs/aws-coverage.md). Open a PR with `Fixes #<n>`.
+Pick an open item from the [issue list](https://github.com/jbe-codeup/archviz/issues) (prefer `P0` / `good first issue`), follow [CONTRIBUTING.md](CONTRIBUTING.md), and for AWS nodes use [`.cursor/skills/add-aws-resource/SKILL.md`](.cursor/skills/add-aws-resource/SKILL.md) + [`docs/aws-coverage.md`](docs/aws-coverage.md). Open a PR with `Fixes #<n>`.
 
 ## Development
 
