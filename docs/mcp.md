@@ -25,4 +25,4 @@ Default store: filesystem under `ARCHVIZ_PROJECTS_DIR` (default `./projects/<id>
 
 ## Enterprise
 
-[Archviz Enterprise](https://github.com/codeupllc/archviz-enterprise) **imports** `registerCoreTools` from `@archviz/mcp` and adds premium tools (`generate_project`, `run_project`, …) with an HTTP diagram store so Studio can live-follow. It does **not** duplicate the core tool names.
+Archviz Enterprise (a separate, private product; not needed for anything in this repo) **imports** `registerCoreTools` from `@archviz/mcp` and adds premium tools (`generate_project`, `run_project`, …) with an HTTP diagram store so Studio can live-follow. It does **not** duplicate the core tool names.
