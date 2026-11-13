@@ -85,33 +85,6 @@ function webUrlFromServiceBase(url: string): string {
   return `${url.replace(/\/$/, '')}/web/`;
 }
 
-/** Restore LocalStack ECS links after refresh from the runner’s last Apply. */
-function serviceLinksFromOpsEvents(
-  events: RunnerEvent[],
-): { url: string; swaggerUrl: string; webUrl: string } | null {
-  let last: { url: string; swaggerUrl: string; webUrl: string } | null = null;
-  let applyOk = false;
-  for (const event of events) {
-    if (event.type === 'service') {
-      last = {
-        url: event.url,
-        swaggerUrl: event.swaggerUrl,
-        webUrl: event.webUrl ?? webUrlFromServiceBase(event.url),
-      };
-    }
-    if (event.type === 'exit' && event.ok) applyOk = true;
-    if (event.type === 'exit' && !event.ok) {
-      last = null;
-      applyOk = false;
-    }
-    if (event.type === 'error') {
-      last = null;
-      applyOk = false;
-    }
-  }
-  return applyOk ? last : null;
-}
-
 const RUNNER_URL_KEY = 'archviz:runner-url:v1';
 const SERVICE_LINKS_KEY_PREFIX = 'archviz:localstack-service:v1:';
 /** @deprecated pre-project-scoped cache — cleared on read so Open UI cannot leak across diagrams */
