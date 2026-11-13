@@ -10,7 +10,7 @@ Archviz today turns an AWS diagram into reviewable Terraform: 26 palette resourc
 - [ ] ALB HTTPS listener with an ACM certificate connection ([#14](https://github.com/jbe-codeup/archviz/issues/14))
 - [ ] S3 versioning, encryption and public-access-block companions ([#13](https://github.com/jbe-codeup/archviz/issues/13))
 - [ ] IAM Role: suggest a trust policy from what it's connected to (ECS, Lambda, EC2) ([#23](https://github.com/jbe-codeup/archviz/issues/23))
-- [ ] Persist LocalStack ECS URLs and prefer the API service for "Open UI" ([PR #35](https://github.com/jbe-codeup/archviz/pull/35), in review)
+- [x] Persist LocalStack ECS URLs and prefer the API service for "Open UI" ([PR #35](https://github.com/jbe-codeup/archviz/pull/35))
 
 ## Next: common architecture building blocks (P1)
 
