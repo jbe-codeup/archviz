@@ -55,6 +55,7 @@ export const ec2Instance = defineResource({
       cardinality: { maxOutgoing: 1 },
       materialize: { strategy: 'instance-profile' },
       label: 'IAM Role',
+      assumedBy: 'ec2.amazonaws.com',
     },
   ],
   properties: [

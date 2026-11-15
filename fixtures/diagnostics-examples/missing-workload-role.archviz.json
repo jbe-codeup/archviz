@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "meta": {
+    "name": "Example: missing workload role",
+    "provider": "aws",
+    "createdAt": "2026-11-15T00:00:00.000Z",
+    "updatedAt": "2026-11-15T00:00:00.000Z"
+  },
+  "resources": [
+    {
+      "id": "fn-noperm",
+      "type": "aws/lambda-function",
+      "name": "worker",
+      "properties": {
+        "function_name": "worker",
+        "runtime": "nodejs20.x",
+        "handler": "index.handler",
+        "filename": "function.zip"
+      },
+      "parentId": null,
+      "layout": {
+        "x": 80,
+        "y": 320
+      }
+    },
+    {
+      "id": "q-jobs",
+      "type": "aws/sqs-queue",
+      "name": "jobs",
+      "properties": {
+        "queue_name": "jobs"
+      },
+      "parentId": null,
+      "layout": {
+        "x": 560,
+        "y": 320
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "id": "rel-write",
+      "relationship": "writes-to",
+      "sourceId": "fn-noperm",
+      "targetId": "q-jobs"
+    }
+  ]
+}

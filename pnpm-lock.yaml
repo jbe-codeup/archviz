@@ -11,6 +11,9 @@ importers:
       '@archviz/codegen':
         specifier: workspace:*
         version: link:packages/codegen
+      '@archviz/core':
+        specifier: workspace:*
+        version: link:packages/core
       '@archviz/provider-aws':
         specifier: workspace:*
         version: link:packages/provider-aws
@@ -78,13 +81,13 @@ importers:
       '@archviz/core':
         specifier: workspace:*
         version: link:../core
+      '@archviz/provider-aws':
+        specifier: workspace:*
+        version: link:../provider-aws
       '@archviz/schema':
         specifier: workspace:*
         version: link:../schema
     devDependencies:
-      '@archviz/provider-aws':
-        specifier: workspace:*
-        version: link:../provider-aws
       typescript:
         specifier: ^5.7.3
         version: 5.9.3

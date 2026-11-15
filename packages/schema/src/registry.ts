@@ -1,4 +1,5 @@
 import type { ResourceDefinition, ResourceDefinitionJSON } from './types.js';
+import type { DocumentValidator } from './validators.js';
 
 /**
  * Central registry of resource definitions. Built at startup from provider
@@ -8,6 +9,7 @@ export class ResourceRegistry {
   private readonly byId = new Map<string, ResourceDefinition>();
   private readonly byCapability = new Map<string, Set<string>>();
   private readonly childrenOf = new Map<string, Set<string>>();
+  private readonly validatorsById = new Map<string, DocumentValidator>();
 
   register(definition: ResourceDefinition): void {
     if (this.byId.has(definition.id)) {
@@ -36,6 +38,22 @@ export class ResourceRegistry {
 
   registerAll(definitions: readonly ResourceDefinition[]): void {
     for (const d of definitions) this.register(d);
+  }
+
+  /**
+   * Add a document-wide rule (see DocumentValidator). Validators are code,
+   * so toJSON()/fromJSON() carry definitions only — build registries through
+   * the provider (e.g. createAwsRegistry()) to get them.
+   */
+  registerValidator(validator: DocumentValidator): void {
+    if (this.validatorsById.has(validator.id)) {
+      throw new Error(`Validator already registered: ${validator.id}`);
+    }
+    this.validatorsById.set(validator.id, validator);
+  }
+
+  validators(): DocumentValidator[] {
+    return [...this.validatorsById.values()];
   }
 
   get(id: string): ResourceDefinition | undefined {

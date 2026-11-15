@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "meta": {
+    "name": "Example: role trust mismatch",
+    "provider": "aws",
+    "createdAt": "2026-11-15T00:00:00.000Z",
+    "updatedAt": "2026-11-15T00:00:00.000Z"
+  },
+  "resources": [
+    {
+      "id": "td-trust",
+      "type": "aws/ecs-task-definition",
+      "name": "api-task",
+      "properties": {
+        "family": "api",
+        "cpu": "256",
+        "memory": "512",
+        "image": "myorg/api:1"
+      },
+      "parentId": null,
+      "layout": {
+        "x": 80,
+        "y": 80
+      }
+    },
+    {
+      "id": "role-trust",
+      "type": "aws/iam-role",
+      "name": "api-exec-role",
+      "properties": {
+        "trust_principal": "ec2"
+      },
+      "parentId": null,
+      "layout": {
+        "x": 560,
+        "y": 80
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "id": "rel-trust",
+      "relationship": "execution-role",
+      "sourceId": "td-trust",
+      "targetId": "role-trust"
+    }
+  ]
+}

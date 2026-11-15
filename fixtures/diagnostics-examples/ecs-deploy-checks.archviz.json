@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "meta": {
+    "name": "Example: ECS deploy checks",
+    "provider": "aws",
+    "createdAt": "2026-11-15T00:00:00.000Z",
+    "updatedAt": "2026-11-15T00:00:00.000Z"
+  },
+  "resources": [
+    {
+      "id": "td-deploy",
+      "type": "aws/ecs-task-definition",
+      "name": "web-task",
+      "properties": {
+        "family": "web",
+        "cpu": "256",
+        "memory": "512"
+      },
+      "parentId": null,
+      "layout": {
+        "x": 80,
+        "y": 560
+      }
+    },
+    {
+      "id": "secret-db",
+      "type": "aws/secrets-manager-secret",
+      "name": "db-password",
+      "properties": {
+        "secret_name": "app/db-password",
+        "source": "generated-password"
+      },
+      "parentId": null,
+      "layout": {
+        "x": 560,
+        "y": 560
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "id": "rel-secret",
+      "relationship": "uses-secret",
+      "sourceId": "td-deploy",
+      "targetId": "secret-db"
+    }
+  ]
+}

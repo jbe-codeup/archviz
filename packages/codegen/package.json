@@ -21,10 +21,10 @@
   },
   "dependencies": {
     "@archviz/schema": "workspace:*",
-    "@archviz/core": "workspace:*"
+    "@archviz/core": "workspace:*",
+    "@archviz/provider-aws": "workspace:*"
   },
   "devDependencies": {
-    "@archviz/provider-aws": "workspace:*",
     "typescript": "^5.7.3",
     "vitest": "^3.0.5"
   }

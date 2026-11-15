@@ -63,6 +63,7 @@ export const lambdaFunction = defineResource({
       cardinality: { maxOutgoing: 1, minOutgoing: 1 },
       materialize: { strategy: 'annotation' },
       label: 'Execution Role',
+      assumedBy: 'lambda.amazonaws.com',
     },
     {
       // Optional connection to a standalone CloudWatch Log Group. Lambda can

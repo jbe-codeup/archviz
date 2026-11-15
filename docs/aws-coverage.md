@@ -121,17 +121,17 @@ Every canvas edge should answer: **what Terraform must this become?** Not every 
 |---|---|---|---|---|
 | Compute → RDS / Aurora / ElastiCache | Network path (SG allow) | `connects-to` → `network-service` | **Yes** — `sg-rule-pair` | Optional later: IAM DB auth (rare); port-specific rules |
 | ECS Service → ECS Service (peer) | Network path (SG allow) | `connects-to` → `network-service` | **Yes** — `sg-rule-pair` (ECS is also a `network-service`) | ALB/NLB in front of peers when needed |
-| Compute → Secrets / SSM (inject) | Value/ARN wiring + often IAM | `uses-secret` | **Yes** — value ref + ECS exec-role policy | — |
+| Compute → Secrets / SSM (inject) | Value/ARN wiring + often IAM | `uses-secret` | **Yes** — value ref + ECS exec-role policy | `ecs-secrets-need-exec-role` warning when no Execution Role |
 | Compute → SQS consume / produce | IAM on workload role (+ ESM for Lambda consume) | `reads-from` / `writes-to` | **Yes** — `api-iam` + Lambda `aws_lambda_event_source_mapping` | DynamoDB Streams / Kinesis ESM |
 | Compute → S3 / DynamoDB | IAM on workload role | `reads-from` / `writes-to` | **Yes** — same `api-iam` pattern (swappable on edge label) | Finer-grained actions / KMS |
 | Compute → SNS publish | IAM on workload role | `writes-to` | **Yes** — `api-iam` Publish | Lambda subscription deepen |
 | SNS → SQS fan-out | Subscription + queue policy | `delivers-to` | **Yes** — `sns-sqs-subscription` | Filter policies / raw delivery |
-| Lambda / EC2 → IAM Role | Role ARN / instance profile | `assumes` | **Yes** — Lambda attr + EC2 instance profile; trust via `trust_principal` | Managed-policy attaches |
-| ECS Task Def → Task / Exec role | Role ARNs | `task-role` / `execution-role` | **Attrs +** secrets policy on exec | App IAM (S3/DDB) should target **task-role** |
+| Lambda / EC2 → IAM Role | Role ARN / instance profile | `assumes` | **Yes** — Lambda attr + EC2 instance profile; trust via `trust_principal`; `role-trust-mismatch` warning if the role doesn't trust lambda/ec2 | Managed-policy attaches |
+| ECS Task Def → Task / Exec role | Role ARNs | `task-role` / `execution-role` | **Attrs +** secrets policy on exec; `role-trust-mismatch` warning if the role doesn't trust `ecs-tasks.amazonaws.com` | App IAM (S3/DDB) should target **task-role**; optional one-click auto-set of the trust preset |
 | ALB / NLB → Target Group | Listener | `routes-to` | **Yes** — `lb-listener` | HTTPS + ACM |
 | TG → EC2 | Attachment | `forwards-to` | **Yes** — attachment | ECS/Lambda targets |
-| Task Def → ECR | Image URI | `pulls-image` | **Yes** — emitter in `container_definitions` | Exec-role `ecr:GetAuthorizationToken` if missing |
-| ALB / NLB / Service → Subnets | Multi-AZ lists | `runs-in` | **Yes** — emitters; ECS Service `minOutgoing: 1` | — |
+| Task Def → ECR | Image URI | `pulls-image` | **Yes** — emitter in `container_definitions`; `ecs-image-fallback` info when neither ECR nor Image URI | Exec-role `ecr:GetAuthorizationToken` if missing |
+| ALB / NLB / Service → Subnets | Multi-AZ lists | `runs-in` | **Yes** — emitters; ECS Service `minOutgoing: 1`; single-subnet ALB → `lb-needs-two-azs` warning (NLB → info, AWS allows one AZ) | — |
 | ECS Service → Task Def / SG | task_definition + network_configuration | `runs-task` / `attached-to` | **Yes** — attrs + block; both required | — |
 | RDS → SG | vpc_security_group_ids | `attached-to` | **Yes** — attr; `minOutgoing: 1` | db_subnet_group companion |
 

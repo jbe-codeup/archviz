@@ -18,6 +18,14 @@ export type {
   ResourceDefinitionJSON,
 } from './types.js';
 
+export type { DiagnosticSeverity, DiagnosticTier, Diagnostic } from './diagnostics.js';
+export type {
+  ValidationResource,
+  ValidationRelationship,
+  ValidationDocument,
+  DocumentValidator,
+} from './validators.js';
+
 export { defineResource } from './define-resource.js';
 export { prop, ref, refParent, refRel, literal, self } from './exprs.js';
 export { ResourceRegistry } from './registry.js';

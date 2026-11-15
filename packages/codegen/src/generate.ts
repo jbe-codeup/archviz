@@ -195,6 +195,17 @@ export function generate(
     applyEmitters(document, registry, names, region, blocksByResourceId),
   );
 
+  // Decorate each resource block with the non-error diagnostics that point at
+  // it, so the .tf always says the same thing as Studio's Diagnostics panel.
+  // (Errors block export; emitDespiteErrors previews list them up top.)
+  for (const d of validation.diagnostics) {
+    if (!d.resourceId || d.severity === 'error') continue;
+    const block = blocksByResourceId.get(d.resourceId);
+    if (!block) continue;
+    const line = `${d.severity === 'info' ? 'INFO' : 'WARNING'}: ${d.message}`;
+    block.comment = block.comment ? `${block.comment}\n${line}` : line;
+  }
+
   const needsRandomProvider = document.resources.some(
     (r) => r.type === 'aws/secrets-manager-secret' && r.properties.source !== 'variable',
   );

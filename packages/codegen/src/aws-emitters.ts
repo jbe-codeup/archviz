@@ -1,4 +1,5 @@
 import type { ResourceInstance } from '@archviz/core';
+import { TRUST_PRESET_SERVICES, usesCustomTrustPolicy } from '@archviz/provider-aws';
 import { registerResourceEmitter, type EmitterContext } from './emit.js';
 import type { HclValue } from './ast.js';
 import { rawValue, stringValue, numberValue, boolValue, listValue, traversal } from './ast.js';
@@ -97,16 +98,15 @@ export function registerAwsEmitters(): void {
 
     // Priority: explicit image URI (LocalStack / digests) → ECR connection →
     // valid public fallback (never emit angle-brackets — ECS rejects them).
+    // The aws/ecs-image-source validator flags the nginx fallback in
+    // Diagnostics; generate() mirrors it as a comment on this block.
     let imageRef: string;
-    let imageComment: string | undefined;
     if (imageOverride) {
       imageRef = JSON.stringify(imageOverride);
     } else if (repo && repoDef && repoName) {
       imageRef = `"\${${repoDef.terraform.resourceType}.${repoName}.repository_url}:${imageTag}"`;
     } else {
       imageRef = JSON.stringify(`public.ecr.aws/docker/library/nginx:${imageTag}`);
-      imageComment =
-        'WARNING: no ECR connection or image URI — using public nginx. Connect ECR (pulls-image) or set Image URI for real deploys / LocalStack apps.';
     }
 
     // uses-secret connections become `secrets` entries (valueFrom = <ARN>),
@@ -280,20 +280,11 @@ export function registerAwsEmitters(): void {
       });
     }
 
-    const comments: string[] = [];
-    if (imageComment) comments.push(imageComment);
-    if (secretEntries.length > 0 && !execRoleName) {
-      comments.push(
-        'WARNING: secrets are injected below but no Execution Role is connected — ECS cannot pull them at task start. Connect an IAM Role via the "Execution Role" connection.',
-      );
-    }
-
     return {
       attributes: [
         { name: 'container_definitions', value: rawValue(`jsonencode(${containerDefJson})`) },
       ],
       extraBlocks,
-      comment: comments.length > 0 ? comments.join(' ') : undefined,
     };
   });
 
@@ -322,11 +313,8 @@ export function registerAwsEmitters(): void {
     const subnets = subnetRefs(resource, ctx);
     if (subnets.length === 0) return {};
     return {
+      // Single-subnet ALBs are flagged by the aws/lb-multi-az validator.
       attributes: [{ name: 'subnets', value: listValue(subnets) }],
-      comment:
-        subnets.length < 2
-          ? 'WARNING: an Application Load Balancer needs subnets in at least two Availability Zones — add an "Also spans Subnet" connection to a second subnet.'
-          : undefined,
     };
   });
 
@@ -335,34 +323,16 @@ export function registerAwsEmitters(): void {
     if (subnets.length === 0) return {};
     return {
       attributes: [{ name: 'subnets', value: listValue(subnets) }],
-      comment:
-        subnets.length < 2
-          ? 'WARNING: a Network Load Balancer needs subnets in at least two Availability Zones — add an "Also spans Subnet" connection to a second subnet.'
-          : undefined,
     };
   });
 
   registerResourceEmitter('aws/iam-role', (resource) => {
-    const presetRaw = resource.properties.trust_principal;
-    const customPolicy = resource.properties.assume_role_policy;
     // Preserve hand-written JSON when Trusted Service is Custom, or when an
     // older diagram only has assume_role_policy (no trust_principal yet).
-    if (
-      presetRaw === 'custom' ||
-      (presetRaw === undefined &&
-        typeof customPolicy === 'string' &&
-        customPolicy.trim().length > 0)
-    ) {
-      return {};
-    }
+    if (usesCustomTrustPolicy(resource.properties)) return {};
 
-    const preset = String(presetRaw || 'ec2');
-    const serviceByPreset: Record<string, string> = {
-      ec2: 'ec2.amazonaws.com',
-      lambda: 'lambda.amazonaws.com',
-      'ecs-tasks': 'ecs-tasks.amazonaws.com',
-    };
-    const service = serviceByPreset[preset];
+    const preset = String(resource.properties.trust_principal || 'ec2');
+    const service = TRUST_PRESET_SERVICES[preset];
     if (!service) return {};
 
     const policy = {
