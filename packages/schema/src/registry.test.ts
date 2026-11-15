@@ -109,6 +109,14 @@ describe('ResourceRegistry', () => {
     expect(registry.possibleRelationships('aws/ec2-instance', 'aws/vpc')).toEqual([]);
   });
 
+  it('registers validators once and lists them', () => {
+    const r = new ResourceRegistry();
+    const v = { id: 'test/noop', validate: () => [] };
+    r.registerValidator(v);
+    expect(r.validators()).toEqual([v]);
+    expect(() => r.registerValidator(v)).toThrow(/already registered/);
+  });
+
   it('round-trips through JSON', () => {
     const json = definitionsToJsonString(registry.all());
     const restored = ResourceRegistry.fromJSON(definitionsFromJsonString(json));

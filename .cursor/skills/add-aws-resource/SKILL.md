@@ -80,6 +80,7 @@ Copy and track:
 - `terraform.resourceType`: exact TF type (`aws_sqs_queue`).
 - Flat attrs → `prop('…')` / `ref.rel('relationship', 'attr', optional)`.
 - Anything Terraform **requires** that can only come from another resource → connection with `cardinality.minOutgoing: 1` (see Lambda `assumes`) so Export/Plan block with a clear diagnostic instead of invalid HCL.
+- Edge to an `aws/iam-role` that the workload assumes → set `assumedBy: '<service>.amazonaws.com'` on the connection (see ECS `task-role`, Lambda `assumes`). The `aws/role-trust` validator then warns when the role doesn't trust that service — no code change needed.
 - Use capabilities (`network-service`, `network-client`, `storage`, …) for polymorphic `connects-to` / `reads-from` targets.
 - Do **not** duplicate the same `relationship` name twice on one resource (`defineResource` forbids it) — dispatch by target type inside one materializer (see `reads-from`).
 - `materialize.strategy`:
@@ -98,6 +99,10 @@ Add `registerResourceEmitter('aws/…', …)` in `packages/codegen/src/aws-emitt
 
 Keep companions **out of the palette** unless users must configure them as first-class nodes (document under “Companions” in coverage).
 
+### When you need a diagram rule (diagnostic)
+
+Prefer data first (`minOutgoing`, `assumedBy`, property `validate`). When a rule needs logic across resources (valid Terraform, but wrong at deploy time), write a `DocumentValidator` in `packages/provider-aws/src/` and add it to `awsValidators` in `index.ts`. Core's `validate()` runs it, so Studio Diagnostics, MCP and Export all see it; set `relationshipId` on edge-caused diagnostics and Studio toasts the warning when the edge is drawn. Don't add AWS type checks to `packages/core`.
+
 ### Outputs (optional)
 
 If the resource has a stable useful attr (endpoint, url, arn), extend `packages/codegen/src/outputs.ts` like VPC/ALB/RDS.
@@ -108,7 +113,7 @@ Generated HCL for a minimal valid diagram:
 
 1. Passes unit tests and `validate-fixture` (terraform validate) when possible.
 2. Missing required connections surface as **diagnostics**, not silent omit.
-3. User-facing data/access edges emit real HCL (or an explicit WARNING) — not silent annotation.
+3. User-facing data/access edges emit real HCL or a validator diagnostic — not silent annotation. Don't hand-write `WARNING:` comments in emitters/materializers: `generate()` mirrors every warning/info diagnostic as a comment on its resource block.
 4. `docs/aws-coverage.md` reflects the new reality (including the connection audit when relevant).
 5. PR includes a **screenshot or short video** of the new/changed node or connection in Studio (see `AGENTS.md`).
 

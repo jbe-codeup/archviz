@@ -8,7 +8,7 @@ export interface EditorContext {
   candidateParentId: string | null;
   candidateParentValid: boolean;
   selectedResourceId: string | null;
-  feedback: { message: string; tone: 'error' | 'info' } | null;
+  feedback: { message: string; tone: 'error' | 'warning' | 'info' } | null;
   /** Resource type currently being dragged out of the palette (not yet dropped). */
   paletteDraggingType: string | null;
 }
@@ -38,7 +38,7 @@ export type EditorEvent =
   | { type: 'PAN_START' }
   | { type: 'PAN_END' }
   | { type: 'CLEAR_FEEDBACK' }
-  | { type: 'SET_FEEDBACK'; message: string; tone?: 'error' | 'info' }
+  | { type: 'SET_FEEDBACK'; message: string; tone?: 'error' | 'warning' | 'info' }
   | { type: 'PALETTE_DRAG_START'; resourceType: string }
   | { type: 'PALETTE_DRAG_END' };
 

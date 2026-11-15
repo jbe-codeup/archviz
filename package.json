@@ -19,6 +19,7 @@
   "packageManager": "pnpm@9.15.0",
   "devDependencies": {
     "@archviz/codegen": "workspace:*",
+    "@archviz/core": "workspace:*",
     "@archviz/provider-aws": "workspace:*",
     "typescript": "^5.7.3",
     "vitest": "^3.0.5"

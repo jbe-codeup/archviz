@@ -1,4 +1,11 @@
-import { ResourceRegistry, type ResourceDefinition } from '@archviz/schema';
+import { ResourceRegistry, type DocumentValidator, type ResourceDefinition } from '@archviz/schema';
+import { roleTrustValidator } from './iam-trust.js';
+import { workloadRoleValidator } from './workload-role.js';
+import {
+  ecsSecretsExecRoleValidator,
+  ecsImageSourceValidator,
+  lbMultiAzValidator,
+} from './deploy-checks.js';
 import {
   vpc,
   subnet,
@@ -57,9 +64,19 @@ export const awsResources: ResourceDefinition[] = [
   cloudwatchLogGroup,
 ];
 
+/** Document-wide AWS rules; core's validate() runs them via the registry. */
+export const awsValidators: DocumentValidator[] = [
+  roleTrustValidator,
+  workloadRoleValidator,
+  ecsSecretsExecRoleValidator,
+  ecsImageSourceValidator,
+  lbMultiAzValidator,
+];
+
 export function createAwsRegistry(): ResourceRegistry {
   const registry = new ResourceRegistry();
   registry.registerAll(awsResources);
+  for (const validator of awsValidators) registry.registerValidator(validator);
   return registry;
 }
 
@@ -99,3 +116,10 @@ export {
   checkLocalstackHobbyCompatibility,
 } from './localstack-hobby.js';
 export type { HobbyCompatibility, LocalstackCompatibilityOptions } from './localstack-hobby.js';
+export { TRUST_PRESET_SERVICES, usesCustomTrustPolicy, roleTrustValidator } from './iam-trust.js';
+export { resolveWorkloadRoleId, workloadRoleValidator } from './workload-role.js';
+export {
+  ecsSecretsExecRoleValidator,
+  ecsImageSourceValidator,
+  lbMultiAzValidator,
+} from './deploy-checks.js';

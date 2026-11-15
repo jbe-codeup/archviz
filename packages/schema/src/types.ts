@@ -102,6 +102,12 @@ export interface ConnectionRule {
   materialize: MaterializeStrategy;
   label?: string;
   bidirectional?: boolean;
+  /**
+   * Service principal that assumes the target identity through this edge
+   * (e.g. 'ecs-tasks.amazonaws.com' for an ECS Task Role). Provider
+   * validators check the target's trust against it.
+   */
+  assumedBy?: string;
 }
 
 /** Attribute expression helpers used in terraform.attributes mappings. */

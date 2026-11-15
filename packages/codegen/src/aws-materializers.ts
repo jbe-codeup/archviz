@@ -2,6 +2,7 @@ import type { Materializer } from './materialize.js';
 import { registerMaterializer } from './materialize.js';
 import { numberValue, rawValue, stringValue, boolValue, traversal } from './ast.js';
 import { secretValueRef } from './aws-emitters.js';
+import { resolveWorkloadRoleId } from '@archviz/provider-aws';
 import type { ArchvizDocument } from '@archviz/core';
 
 /**
@@ -269,30 +270,8 @@ function resolveWorkloadRoleName(
   document: ArchvizDocument,
   names: Map<string, string>,
 ): string | null {
-  const assumes = document.relationships.find(
-    (r) => r.sourceId === source.id && r.relationship === 'assumes',
-  );
-  if (assumes) return names.get(assumes.targetId) ?? null;
-
-  if (source.type === 'aws/ecs-task-definition') {
-    const taskRole = document.relationships.find(
-      (r) => r.sourceId === source.id && r.relationship === 'task-role',
-    );
-    return taskRole ? (names.get(taskRole.targetId) ?? null) : null;
-  }
-
-  if (source.type === 'aws/ecs-service') {
-    const runsTask = document.relationships.find(
-      (r) => r.sourceId === source.id && r.relationship === 'runs-task',
-    );
-    if (!runsTask) return null;
-    const taskRole = document.relationships.find(
-      (r) => r.sourceId === runsTask.targetId && r.relationship === 'task-role',
-    );
-    return taskRole ? (names.get(taskRole.targetId) ?? null) : null;
-  }
-
-  return null;
+  const roleId = resolveWorkloadRoleId(source, document);
+  return roleId ? (names.get(roleId) ?? null) : null;
 }
 
 function formatActionList(actions: string[]): string {
@@ -388,7 +367,7 @@ function iamStatementsForTarget(
 /**
  * Lambda/EC2/ECS —reads-from|writes-to→ SQS / S3 / DynamoDB: grant the assumed
  * workload role resource-scoped IAM (consume vs produce). Without a role,
- * emits a WARNING comment instead of a policy.
+ * emits nothing — the aws/workload-role validator flags the diagram.
  */
 export const apiIamMaterializer: Materializer = (ctx) => {
   const access: ApiAccess =
@@ -407,15 +386,9 @@ export const apiIamMaterializer: Materializer = (ctx) => {
   }
 
   const roleName = resolveWorkloadRoleName(ctx.source, ctx.document, ctx.names);
-  if (!roleName) {
-    const roleHint =
-      ctx.source.type === 'aws/ecs-service' || ctx.source.type === 'aws/ecs-task-definition'
-        ? 'Task Role on the Task Definition'
-        : 'assumes → IAM Role';
-    return {
-      comment: `WARNING: ${ctx.source.name} ${ctx.relationship.relationship} ${ctx.target.name} but no ${roleHint} is connected — no ${spec.kind.toUpperCase()} IAM policy emitted`,
-    };
-  }
+  // No role: emit nothing — the aws/workload-role validator raises the error,
+  // and generate() mirrors it as a comment on the source block.
+  if (!roleName) return {};
 
   const policyName = `${sourceName}_${spec.kind}_${access}_${targetName}`;
   const policyJson = [

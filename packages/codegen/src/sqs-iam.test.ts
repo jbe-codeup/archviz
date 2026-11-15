@@ -59,7 +59,7 @@ describe('SQS IAM from reads-from / writes-to', () => {
     expect(hcl).toContain('function_name    = aws_lambda_function.worker.arn');
   });
 
-  it('warns and skips IAM when no role is assumed', () => {
+  it('errors and skips IAM when no role is assumed', () => {
     const doc: ArchvizDocument = {
       ...createEmptyDocument('sqs-no-role'),
       resources: [
@@ -88,7 +88,7 @@ describe('SQS IAM from reads-from / writes-to', () => {
 
     const hcl = generateMainTf(doc, registry);
     expect(hcl).not.toContain('aws_iam_role_policy');
-    expect(hcl).toMatch(/WARNING:.*writes-to.*no assumes/);
+    expect(hcl).toMatch(/ERROR:.*"worker" writes to SQS Queue but has no assumed role/);
   });
 
   it('puts ECS service SQS access on the task role, not the execution role', () => {

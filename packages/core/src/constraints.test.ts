@@ -315,3 +315,32 @@ describe('constraint engine', () => {
     expect(result.ok).toBe(true);
   });
 });
+
+describe('registered validators', () => {
+  it('runs every validator on the registry and merges its diagnostics', () => {
+    const registry = makeRegistry();
+    registry.registerValidator({
+      id: 'test/every-bucket',
+      validate: (doc) =>
+        doc.resources
+          .filter((r) => r.type === 'aws/s3-bucket')
+          .map((r) => ({
+            code: 'test-rule',
+            message: `checked ${r.name}`,
+            severity: 'warning' as const,
+            tier: 'semantic' as const,
+            resourceId: r.id,
+          })),
+    });
+    const doc: ArchvizDocument = {
+      ...createEmptyDocument('validators'),
+      resources: [res('b1', 'aws/s3-bucket', { properties: { bucket: 'b1' } })],
+    };
+
+    const result = validate(doc, registry);
+    expect(result.diagnostics.filter((d) => d.code === 'test-rule')).toEqual([
+      expect.objectContaining({ message: 'checked b1', resourceId: 'b1' }),
+    ]);
+    expect(result.ok).toBe(true);
+  });
+});

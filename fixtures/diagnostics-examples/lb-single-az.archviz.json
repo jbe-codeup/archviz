@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "meta": {
+    "name": "Example: single-AZ load balancers",
+    "provider": "aws",
+    "createdAt": "2026-11-15T00:00:00.000Z",
+    "updatedAt": "2026-11-15T00:00:00.000Z"
+  },
+  "resources": [
+    {
+      "id": "vpc-1",
+      "type": "aws/vpc",
+      "name": "main-vpc",
+      "properties": {
+        "cidr_block": "10.0.0.0/16"
+      },
+      "parentId": null,
+      "layout": {
+        "x": 60,
+        "y": 800
+      }
+    },
+    {
+      "id": "subnet-a",
+      "type": "aws/subnet",
+      "name": "subnet-a",
+      "properties": {
+        "cidr_block": "10.0.1.0/24"
+      },
+      "parentId": "vpc-1",
+      "layout": {
+        "x": 40,
+        "y": 60
+      }
+    },
+    {
+      "id": "alb-1",
+      "type": "aws/alb",
+      "name": "public-alb",
+      "properties": {
+        "load_balancer_type": "application"
+      },
+      "parentId": "subnet-a",
+      "layout": {
+        "x": 30,
+        "y": 40
+      }
+    },
+    {
+      "id": "nlb-1",
+      "type": "aws/nlb",
+      "name": "tcp-nlb",
+      "properties": {
+        "load_balancer_type": "network"
+      },
+      "parentId": "subnet-a",
+      "layout": {
+        "x": 330,
+        "y": 40
+      }
+    }
+  ],
+  "relationships": []
+}

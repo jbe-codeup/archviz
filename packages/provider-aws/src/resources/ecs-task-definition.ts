@@ -32,6 +32,7 @@ export const ecsTaskDefinition = defineResource({
       cardinality: { maxOutgoing: 1 },
       materialize: { strategy: 'annotation' },
       label: 'Execution Role',
+      assumedBy: 'ecs-tasks.amazonaws.com',
     },
     {
       relationship: 'task-role',
@@ -39,6 +40,7 @@ export const ecsTaskDefinition = defineResource({
       cardinality: { maxOutgoing: 1 },
       materialize: { strategy: 'annotation' },
       label: 'Task Role',
+      assumedBy: 'ecs-tasks.amazonaws.com',
     },
     {
       // Unlike RDS's uses-secret (which wires the plaintext value into an

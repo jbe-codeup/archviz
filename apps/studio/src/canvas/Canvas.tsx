@@ -23,6 +23,7 @@ import { ResourceNode } from './ResourceNode';
 import { ContainerNode } from './ContainerNode';
 import { RelationshipEdge } from './RelationshipEdge';
 import { documentToFlow } from './projection';
+import { newConnectionWarnings } from './connectionWarnings';
 import {
   useDocument,
   useDiagnostics,
@@ -370,6 +371,14 @@ function CanvasInner() {
         targetHandle: (flipped ? connection.sourceHandle : connection.targetHandle) ?? undefined,
       });
       editorRef.send({ type: 'CONNECT_END' });
+
+      // Surface any warning a validator attached to the new edge (e.g. an
+      // IAM Role whose trust doesn't match). It also stays in Diagnostics.
+      const next = store.getSnapshot().context;
+      const warnings = newConnectionWarnings(document, next.document, next.diagnostics);
+      if (warnings.length > 0) {
+        editorRef.send({ type: 'SET_FEEDBACK', message: warnings.join('; '), tone: 'warning' });
+      }
     },
     [document, registry, store, editorRef],
   );
@@ -571,7 +580,7 @@ function CanvasInner() {
       {toast && (
         <div className={`canvas-toast canvas-toast--${toast.tone}`} role="status">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-            {toast.tone === 'error' ? (
+            {toast.tone !== 'info' ? (
               <>
                 <circle cx="12" cy="12" r="9" />
                 <path d="M12 8v5M12 16h.01" strokeLinecap="round" />

@@ -1,0 +1,170 @@
+{
+  "version": 1,
+  "meta": {
+    "name": "Example: diagnostics showcase",
+    "provider": "aws",
+    "createdAt": "2026-11-15T00:00:00.000Z",
+    "updatedAt": "2026-11-15T00:00:00.000Z"
+  },
+  "resources": [
+    {
+      "id": "td-trust",
+      "type": "aws/ecs-task-definition",
+      "name": "api-task",
+      "properties": {
+        "family": "api",
+        "cpu": "256",
+        "memory": "512",
+        "image": "myorg/api:1"
+      },
+      "parentId": null,
+      "layout": {
+        "x": 80,
+        "y": 80
+      }
+    },
+    {
+      "id": "role-trust",
+      "type": "aws/iam-role",
+      "name": "api-exec-role",
+      "properties": {
+        "trust_principal": "ec2"
+      },
+      "parentId": null,
+      "layout": {
+        "x": 560,
+        "y": 80
+      }
+    },
+    {
+      "id": "fn-noperm",
+      "type": "aws/lambda-function",
+      "name": "worker",
+      "properties": {
+        "function_name": "worker",
+        "runtime": "nodejs20.x",
+        "handler": "index.handler",
+        "filename": "function.zip"
+      },
+      "parentId": null,
+      "layout": {
+        "x": 80,
+        "y": 320
+      }
+    },
+    {
+      "id": "q-jobs",
+      "type": "aws/sqs-queue",
+      "name": "jobs",
+      "properties": {
+        "queue_name": "jobs"
+      },
+      "parentId": null,
+      "layout": {
+        "x": 560,
+        "y": 320
+      }
+    },
+    {
+      "id": "td-deploy",
+      "type": "aws/ecs-task-definition",
+      "name": "web-task",
+      "properties": {
+        "family": "web",
+        "cpu": "256",
+        "memory": "512"
+      },
+      "parentId": null,
+      "layout": {
+        "x": 80,
+        "y": 560
+      }
+    },
+    {
+      "id": "secret-db",
+      "type": "aws/secrets-manager-secret",
+      "name": "db-password",
+      "properties": {
+        "secret_name": "app/db-password",
+        "source": "generated-password"
+      },
+      "parentId": null,
+      "layout": {
+        "x": 560,
+        "y": 560
+      }
+    },
+    {
+      "id": "vpc-1",
+      "type": "aws/vpc",
+      "name": "main-vpc",
+      "properties": {
+        "cidr_block": "10.0.0.0/16"
+      },
+      "parentId": null,
+      "layout": {
+        "x": 60,
+        "y": 800
+      }
+    },
+    {
+      "id": "subnet-a",
+      "type": "aws/subnet",
+      "name": "subnet-a",
+      "properties": {
+        "cidr_block": "10.0.1.0/24"
+      },
+      "parentId": "vpc-1",
+      "layout": {
+        "x": 40,
+        "y": 60
+      }
+    },
+    {
+      "id": "alb-1",
+      "type": "aws/alb",
+      "name": "public-alb",
+      "properties": {
+        "load_balancer_type": "application"
+      },
+      "parentId": "subnet-a",
+      "layout": {
+        "x": 30,
+        "y": 40
+      }
+    },
+    {
+      "id": "nlb-1",
+      "type": "aws/nlb",
+      "name": "tcp-nlb",
+      "properties": {
+        "load_balancer_type": "network"
+      },
+      "parentId": "subnet-a",
+      "layout": {
+        "x": 330,
+        "y": 40
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "id": "rel-trust",
+      "relationship": "execution-role",
+      "sourceId": "td-trust",
+      "targetId": "role-trust"
+    },
+    {
+      "id": "rel-write",
+      "relationship": "writes-to",
+      "sourceId": "fn-noperm",
+      "targetId": "q-jobs"
+    },
+    {
+      "id": "rel-secret",
+      "relationship": "uses-secret",
+      "sourceId": "td-deploy",
+      "targetId": "secret-db"
+    }
+  ]
+}

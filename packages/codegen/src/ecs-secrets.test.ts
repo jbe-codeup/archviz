@@ -357,7 +357,9 @@ describe('Secrets & variables', () => {
 
     const hcl = generateMainTf(doc, registry);
     expect(hcl).toContain('secrets = [');
-    expect(hcl).toContain('WARNING: secrets are injected below but no Execution Role is connected');
+    expect(hcl).toContain(
+      'WARNING: ECS Task Definition "taskdef" injects secrets but has no Execution Role',
+    );
     expect(hcl).not.toContain('aws_iam_role_policy');
   });
 

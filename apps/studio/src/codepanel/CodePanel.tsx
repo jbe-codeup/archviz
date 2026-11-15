@@ -10,6 +10,7 @@ import { useExportTerraform } from '../persistence/useExportTerraform';
 import { usePlanRunner, getRunnerUrl } from '../plan/usePlanRunner';
 import { PlanPanel } from '../plan/PlanPanel';
 import { TerraformToolbar } from '../plan/TerraformToolbar';
+import { DiagnosticsList } from './DiagnosticsList';
 
 export function CodePanel() {
   const archvizDoc = useDocument();
@@ -115,22 +116,7 @@ export function CodePanel() {
           localstackSwaggerUrl={plan.localstackSwaggerUrl}
           localstackWebUrl={plan.localstackWebUrl}
         />
-        <div className="diagnostics">
-          <div className="diagnostics__title">Diagnostics ({diagnostics.length})</div>
-          <ul>
-            {diagnostics.map((d, i) => (
-              <li
-                key={`${d.code}-${i}`}
-                className={`diagnostics__item diagnostics__item--${d.severity}`}
-              >
-                <strong>{d.tier}</strong> {d.message}
-              </li>
-            ))}
-            {diagnostics.length === 0 && (
-              <li className="diagnostics__empty">No issues</li>
-            )}
-          </ul>
-        </div>
+        <DiagnosticsList diagnostics={diagnostics} />
       </div>
     </aside>
   );
